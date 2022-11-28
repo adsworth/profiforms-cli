@@ -9,6 +9,13 @@ Destination = str
 
 
 @dataclass
+class Source:
+    type: str
+    destination: str
+    paths: typing.List[str]
+
+
+@dataclass
 class RuntimeEnvironment:
     name: str
     platform: str
@@ -73,14 +80,15 @@ class Package:
         except StopIteration:
             raise KeyError((f"Unknown destination '{destination}'"))
 
-    def get_all_sources(self) -> typing.List[dict]:
-        return self.config["source"] if "source" in self.config else []
+    def get_all_sources(self) -> typing.List[Source]:
+        _sources = self.config["source"] if "source" in self.config else []
+        return [Source(**s) for s in _sources]
 
     def get_sources(
         self, destination: typing.Optional[Destination] = None
     ) -> typing.List[dict]:
         sources = self.get_all_sources()
-        sources = [source for source in sources if source["destination"] == destination]
+        sources = [source for source in sources if source.destination == destination]
         paths = self._get_list_extended(sources, "paths")
         return paths
 
@@ -88,7 +96,9 @@ class Package:
         values = []
 
         for _item in _list:
-            if _key in _item:
+            if hasattr(_item, _key):
+                values.extend(getattr(_item, _key))
+            elif _key in _item:
                 values.extend(_item[_key])
 
         return values

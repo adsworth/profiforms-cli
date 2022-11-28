@@ -51,7 +51,7 @@ class Builder:
             for package in self.packages:
                 sources = package.get_all_sources()
                 for source in sources:
-                    destinations.append(source["destination"])
+                    destinations.append(source.destination)
         except KeyError:
             raise KeyError(
                 f"No destination defined in source '{source}' in package '{package}'"
