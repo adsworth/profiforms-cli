@@ -7,13 +7,13 @@ class RsPackage:
         runtime_envs = self.builder.get_runtime_environments()
         _string = "".join(
             [
-                f"""<runtimeEnvironment platform="{e["platform"]}">
-                    <program name="{e["name"]}" version="{e["program_version"]}" />
-                    <cmdLine>{e["command_line"]}</cmdLine>
+                f"""<runtimeEnvironment platform="{e.platform}">
+                    <program name="{e.name}" version="{e.program_version}" />
+                    <cmdLine>{e.command_line}</cmdLine>
                     <programResult>
-                        <log>{e["program_result_log"]}</log>
-                        <preview>{e["program_result_preview"]}</preview>
-                        <result type="{e["program_result_type"]}">{e["program_result_value"]}</result>
+                        <log>{e.program_result_log}</log>
+                        <preview>{e.program_result_preview}</preview>
+                        <result type="{e.program_result_type}">{e.program_result_value}</result>
                     </programResult>
                 </runtimeEnvironment>"""
                 for e in runtime_envs

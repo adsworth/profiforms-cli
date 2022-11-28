@@ -1,10 +1,25 @@
 from collections import OrderedDict
+from dataclasses import dataclass
 from pathlib import Path
 import typing
 
 from pfcli import config
 
 Destination = str
+
+
+@dataclass
+class RuntimeEnvironment:
+    name: str
+    platform: str
+    command_line: str
+
+    program_version: str
+
+    program_result_log: str
+    program_result_preview: str
+    program_result_type: str
+    program_result_value: int
 
 
 class Package:
@@ -138,8 +153,9 @@ class Package:
     def get_input_variables(self) -> typing.List[dict]:
         return self.config["input_variable"]
 
-    def get_runtime_environments(self) -> dict:
-        return self.config["runtime_environment"]
+    def get_runtime_environments(self) -> typing.List[RuntimeEnvironment]:
+        envs = self.config["runtime_environment"]
+        return [RuntimeEnvironment(**e) for e in envs]
 
 
 def load_package(path: Path) -> Package:

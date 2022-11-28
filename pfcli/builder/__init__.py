@@ -4,7 +4,7 @@ from pprint import pformat
 from shutil import rmtree, copy2, make_archive
 import typing
 
-from pfcli.package import Package, Destination
+from pfcli.package import Package, Destination, RuntimeEnvironment
 from pfcli.config import decho, BUILD_DIR, BUILD_DIR_FILE, RS_PACKAGE_CONFIGURATION
 from .xml_generator import get_rs_package_xml_generator
 
@@ -201,7 +201,7 @@ class Builder:
             f"At least one material has to be defined in one of the processed packages '{ *[p.name for p in self.packages],}'."
         )
 
-    def get_runtime_environments(self) -> typing.List:
+    def get_runtime_environments(self) -> typing.List[RuntimeEnvironment]:
         runtimes = []
         for package in reversed(self.packages):
             try:
