@@ -1,0 +1,63 @@
+type = "include"
+
+[[destination]]
+  name = "etc"
+  path = "./etc"
+
+[[destination]]
+  name = "forms"
+  path = "forms"
+
+[[source]]
+  type = "forms"
+  paths = ["forms/_*.*"]
+  destination = "forms"
+
+[[source]]
+  type = "config"
+  paths = ["etc/_*.*"]
+  destination = "etc"
+
+[[runtime_environment]]
+  name="emaks-RW"
+  platform="Linux"
+  command_line = ""
+
+  program_version="5.10.*"
+
+  program_result_log="*.log,*.ext,*.xtf,*.docref,*.sapref"
+  program_result_preview="*.pdf,*.xml"
+  program_result_type="ReturnCode"
+  program_result_value=0
+
+[[transaction_form_material]]
+  name="A4"
+  description="StandardA4"
+  width="210mm"
+  height="297mm"
+  thickness="0.1mm"
+  weight="4.99g"
+
+[[transaction_form_material]]
+  name="Letter"
+  description="Letter"
+  width="210mm"
+  height="297mm"
+  thickness="0.1mm"
+  weight="4.99g"
+
+[supplement.logical]
+  allowed = true
+  useOnlyTransactionFormPaper = true
+
+[supplement.physical]
+  allowed = false
+
+[shipment.postage]
+  optionalSupplementCanExceedPostage = true
+  whitespaceCanExceedPostage = false
+
+[whitespace]
+    allowed = false
+    maxSpace = 50
+    overflow = "ALLOWTOCREATEBACKPAGE"

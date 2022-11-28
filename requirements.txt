@@ -1,0 +1,7 @@
+black==22.1.0
+click==8.0.4
+mypy-extensions==0.4.3
+pathspec==0.9.0
+platformdirs==2.5.1
+-e git+ssh://git@github.com/adsworth/profiforms-cli.git@dd3f29236502de1339c88388c8e79e3e1588d527#egg=profiforms_cli
+tomli==2.0.1

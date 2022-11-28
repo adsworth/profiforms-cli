@@ -1,0 +1,102 @@
+type = "rs_package"
+name= "Vertragsbestätigung"
+description= "Eine Beschreibung zur Vertragsbestätigung"
+archive_name="huhu"
+version = "0.0.1"
+include = ["../_VERTRAGSBEST"]
+transaction_form = "./forms/ZABSCHLAGS_AEND.xdp"
+
+[[runtime_environment]]
+  name ="bn-RW"
+  platform="Windows"
+  command_line = "blubber"
+
+  program_version="5.09.*"
+
+  program_result_log="*.log,*.ext,*.xtf,*.docref,*.sapref"
+  program_result_preview="*.pdf,*.xml"
+  program_result_type="ReturnCode"
+  program_result_value=0
+
+[[destination]]
+  name = "testdata"
+  path = "./testdata"
+
+[[destination]]
+  name = "backgrounds"
+  path = "./backgrounds"
+
+[[source]]
+  type = "config"
+  destination = "etc"
+  paths = ["etc/**/*.*"]
+
+[[source]]
+  type = "forms"
+  destination = "forms"
+  paths = ["forms/*.*"]
+
+[testdata]
+  destination="testdata"
+
+[[testdata.file]]
+  name = "Abschlagsaenderung"
+  description = "2 Dokumente"
+  path  = "./testdata/20220307_abschlagsaenderung.prt"
+
+[[testdata.file]]
+  name = "Abschlagsaenderung"
+  description = "2 Dokumente ein zweites mal"
+  path = "./testdata/20220307_abschlagsaenderung.prt"
+
+[[testdata.file]]
+  name = "Abschlagsaenderung"
+  description = "2 Dokumente ein zweites mal"
+  path = "./testdata/20220307_abschlagsaenderung.prt"
+
+[[inputvariableset]]
+  name = "Spalte1"
+  description = "PIN, 1. Teil VK"
+
+[transaction_form_page_background]
+  destination = "backgrounds"
+
+[[transaction_form_page_background.file]]
+  page_name = "emaks_first_page"
+  path = "./backgrounds/emaks_first_page.png"
+
+[[transaction_form_page_background.file]]
+  page_name = "emaks_second_page"
+  path = "./backgrounds/emaks_second_page.png"
+
+[fontdefinition]
+  path = "./etc/fonts.ini"
+  destination = "etc"
+
+[[input_variable]]
+  name = "GD_DATA_LABEL"
+  description = "Some data for the RS"
+
+[[input_variable]]
+  name = "GD_DATA_SPARTE"
+  description = "Sparte for the RS"
+
+[supplement.logical]
+  allowed=true
+  use_only_transaction_form_paper=true
+
+[supplement.physical]
+  allowed=false
+
+[shipment.postage]
+  optional_supplement_can_exceed_postage = true
+  whitespace_can_exceed_postage = false
+
+[whitespace]
+  allowed = true
+  max_space = 50
+  
+  #valid values for overflow are:
+  #- NOTALLOWED # standard value -->
+  #- ALLOWTOCREATEBACKPAGE # create whitespace-content on empty backpages in case of duplex-printing -->
+  overflow = "ALLOWTOCREATEBACKPAGE"

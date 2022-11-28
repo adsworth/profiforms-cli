@@ -1,0 +1,19 @@
+type = "include"
+include = ["../_GLOBALS"]
+
+[[destination]]
+  name = "logos"
+  path = "./logos"
+
+[[source]]
+  type = "logo"
+  destination = "logos"
+  paths = [ "logo/*.*" ]
+
+[transactionFormMaterials]
+  name = "Custom"
+  description = "Custom size"
+  width = "110mm"
+  height = "197mm"
+  thickness = "0.2mm"
+  weight = "3.99g"

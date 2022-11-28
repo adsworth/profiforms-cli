@@ -1,0 +1,21 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: pfcli",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/pfcli/client.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/testdata/ZPF_VERTRAGSBEST_BDNV",
+      "args": [
+        "--debug",
+        "build"
+      ],
+      "justMyCode": false
+    }
+  ]
+}
