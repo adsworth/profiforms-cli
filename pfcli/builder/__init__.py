@@ -4,7 +4,7 @@ from pprint import pformat
 from shutil import rmtree, copy2, make_archive
 import typing
 
-from pfcli.package import Package, Destination, RuntimeEnvironment
+from pfcli.package import Package, Destination, RuntimeEnvironment, Testdata
 from pfcli.config import decho, BUILD_DIR, BUILD_DIR_FILE, RS_PACKAGE_CONFIGURATION
 from .xml_generator import get_rs_package_xml_generator
 
@@ -217,13 +217,13 @@ class Builder:
 
         return runtimes
 
-    def get_test_data(self) -> dict:
+    def get_test_data(self) -> Testdata:
         for package in reversed(self.packages):
             try:
                 return package.get_test_data()
             except KeyError:
                 pass  # we just continue with the next package
-        return {}
+        return None
 
     def copy_files(self):
         dests_in_sources = self.required_destinations
@@ -259,15 +259,15 @@ class Builder:
             try:
                 testdata = package.get_test_data()
                 try:
-                    dest_path = self.get_destination_path(testdata["destination"])
+                    dest_path = self.get_destination_path(testdata.destination)
                 except KeyError:
                     raise ValueError(
                         f"destination missing.\n"
                         f"testdata section in package {package.name} must have a destination."
                     )
 
-                for testdata_file in testdata["file"]:
-                    testfile = testdata_file["path"]
+                for testdata_file in testdata.files:
+                    testfile = testdata_file.path
                     source = package.basepath.joinpath(testfile).resolve()
                     # if the source file is in a subdirectory pop of
                     # the first subdirectory.

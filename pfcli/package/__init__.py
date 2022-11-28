@@ -29,6 +29,22 @@ class RuntimeEnvironment:
     program_result_value: int
 
 
+@dataclass
+class TestdataFile:
+    name: str
+    description: str
+    path: Path
+
+    def __post_init__(self):
+        self.path = Path(self.path)
+
+
+@dataclass
+class Testdata:
+    destination: str
+    files: typing.List[TestdataFile]
+
+
 class Package:
     def __init__(self, basepath: Path, config: dict):
         self.includes = []
@@ -124,11 +140,11 @@ class Package:
 
         return files
 
-    def get_test_data(self) -> dict:
+    def get_test_data(self) -> Testdata:
         _testdata = self.config["testdata"]
-        for _tf in _testdata["file"]:
-            _tf["path"] = Path(_tf["path"])
+        files = [TestdataFile(**_tf) for _tf in _testdata["file"]]
 
+        _testdata = Testdata(_testdata["destination"], files)
         return _testdata
 
     def get_font_definition(self) -> dict:

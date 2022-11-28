@@ -1,6 +1,16 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pfcli.builder import Builder
+
+
 class RsPackage:
-    def __init__(self, builder):
+    def __init__(self, builder: Builder):
         self.builder = builder
+        self.home = (
+            "${home}"  # Profiforms uses {home} in their package xml, so we define home.
+        )
 
     @property
     def runtime_environments(self):
@@ -26,7 +36,7 @@ class RsPackage:
         background = self.builder.get_transaction_form_page_background()
         _string = "".join(
             [
-                f'<transactionFormPageBackground pageName="{f["page_name"]}">{f["path"]}</transactionFormPageBackground>\n'
+                f'<transactionFormPageBackground pageName="{f["page_name"]}">{self.home}/{f["path"]}</transactionFormPageBackground>\n'
                 for f in background["file"]
             ]
         )
@@ -49,8 +59,8 @@ class RsPackage:
             test_data = self.builder.get_test_data()
             _string = "".join(
                 [
-                    f'<testData><name>{f["name"]}</name><description>{f["description"]}</description><value>{f["path"]}</value></testData>\n'
-                    for f in test_data["file"]
+                    f"<testData><name>{f.name}</name><description>{f.description}</description><value>{self.home}/{f.path}</value></testData>\n"
+                    for f in test_data.files
                 ]
             )
             return _string
@@ -69,9 +79,6 @@ class RsPackage:
         return _string
 
     def get_xml(self):
-        home = (
-            "${home}"  # Profiforms uses {home} in their package xml, so we define home.
-        )
         package = self.builder.build_package
         # FIX: acutally use the path in the package
         font_def_loc = self.builder.get_font_definition()["path"]
@@ -87,12 +94,12 @@ class RsPackage:
     <runtimeEnvironments>
       {self.runtime_environments}
     </runtimeEnvironments>
-    <transactionForm>{home}/{package.transaction_form}</transactionForm>
+    <transactionForm>{self.home}/{package.transaction_form}</transactionForm>
     <transactionFormPageBackgrounds>
       {self.transaction_form_page_backgrounds}
     </transactionFormPageBackgrounds>
     <fontDef>
-      <location>{home}{font_def_loc}</location>
+      <location>{self.home}/{font_def_loc}</location>
     </fontDef>
     <transactionFormMaterials>
       {self.materials}
@@ -133,5 +140,5 @@ class RsPackageAPIVersion_0_0_02(RsPackage):
     pass
 
 
-def get_rs_package_xml_generator(builder):
+def get_rs_package_xml_generator(builder: Builder):
     return RsPackageAPIVersion_0_0_02(builder=builder)
