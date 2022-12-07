@@ -45,6 +45,31 @@ class Testdata:
     files: typing.List[TestdataFile]
 
 
+@dataclass
+class TransactionFormPageBackgroundFile:
+    page_name: str
+    path: Path
+
+    def __post_init__(self):
+        self.path = Path(self.path)
+
+
+@dataclass
+class TransactionFormPageBackground:
+    destination: str
+    files: typing.List[TransactionFormPageBackgroundFile]
+
+
+@dataclass
+class TransactionFormMaterial:
+    name: str
+    description: str
+    width: str
+    height: str
+    thickness: str
+    weight: str
+
+
 class Package:
     def __init__(self, basepath: Path, config: dict):
         self.includes = []
@@ -74,8 +99,8 @@ class Package:
             return f"{ self.name }"
 
     @property
-    def transaction_form(self):
-        return self.config["transaction_form"]
+    def transaction_form(self) -> Path:
+        return Path(self.config["transaction_form"])
 
     def append_include(self, package: "Package"):
         self.includes.append(package)
@@ -141,22 +166,49 @@ class Package:
         return files
 
     def get_test_data(self) -> Testdata:
-        _testdata = self.config["testdata"]
-        files = [TestdataFile(**_tf) for _tf in _testdata["file"]]
+        testdata = self.config["testdata"]
 
-        _testdata = Testdata(_testdata["destination"], files)
-        return _testdata
+        if "destination" not in testdata:
+            raise ValueError(
+                f"No destination in section testdata of package {self.name}.\n"
+                "The section testdata has to have a destination"
+            )
+
+        if "file" not in testdata:
+            raise ValueError(
+                f"No file define for section testdata of package {self.name}.\n"
+                "The section testdata has to have at least one file."
+            )
+
+        files = [TestdataFile(**tf) for tf in testdata["file"]]
+        testdata = Testdata(testdata["destination"], files)
+        return testdata
 
     def get_font_definition(self) -> dict:
         fontdefinition = self.config["fontdefinition"]
         fontdefinition["path"] = Path(fontdefinition["path"])
         return fontdefinition
 
-    def get_transaction_form_page_backgrounds(self) -> dict:
-        backgrounds = self.config["transactionformpagebackgrounds"]
-        for b in backgrounds["file"]:
-            b["path"] = Path(b["path"])
-        return backgrounds
+    def get_transaction_form_page_background(self) -> TransactionFormPageBackground:
+        backgrounds = self.config["transaction_form_page_background"]
+
+        if "destination" not in backgrounds:
+            raise ValueError(
+                f"No destination in section transaction_form_page_background of package {self.name}.\n"
+                "The section transaction_form_page_background has to have a destination"
+            )
+
+        if "file" not in backgrounds:
+            raise ValueError(
+                f"No file define for section transaction_form_page_background of package {self.name}.\n"
+                "The section transaction_form_page_background has to have at least one file."
+            )
+
+        files = [TransactionFormPageBackgroundFile(**bf) for bf in backgrounds["file"]]
+        transaction_forms = TransactionFormPageBackground(
+            backgrounds["destination"], files
+        )
+        return transaction_forms
 
     def get_supplement_logical(self) -> dict:
         return self.config["supplement"]["logical"]
@@ -170,11 +222,18 @@ class Package:
     def get_whitespace(self) -> dict:
         return self.config["whitespace"]
 
-    def get_transaction_form_page_background(self):
-        return self.config["transaction_form_page_background"]
+    def get_transaction_form_materials(self) -> typing.List[TransactionFormMaterial]:
+        materials = self.config["transaction_form_material"]
+        try:
+            materials = [TransactionFormMaterial(**material) for material in materials]
+        except TypeError as err:
+            raise ValueError(
+                f"Invalid section transaction_form_material in package {self.name}.\n"
+                "The section transaction_form_material has to be of type list and\n!"
+                "have the correct properties."
+            )
 
-    def get_transaction_form_materials(self):
-        return self.config["transaction_form_material"]
+        return materials
 
     def get_input_variables(self) -> typing.List[dict]:
         return self.config["input_variable"]

@@ -4,7 +4,14 @@ from pprint import pformat
 from shutil import rmtree, copy2, make_archive
 import typing
 
-from pfcli.package import Package, Destination, RuntimeEnvironment, Testdata
+from pfcli.package import (
+    Package,
+    Destination,
+    RuntimeEnvironment,
+    Testdata,
+    TransactionFormPageBackground,
+    TransactionFormMaterial,
+)
 from pfcli.config import decho, BUILD_DIR, BUILD_DIR_FILE, RS_PACKAGE_CONFIGURATION
 from .xml_generator import get_rs_package_xml_generator
 
@@ -170,7 +177,7 @@ class Builder:
             f"The section whitespace isn't defined in any of the processed packages '{ *[p.name for p in self.packages],}'."
         )
 
-    def get_transaction_form_page_background(self) -> dict:
+    def get_transaction_form_page_background(self) -> TransactionFormPageBackground:
         for package in reversed(self.packages):
             try:
                 return package.get_transaction_form_page_background()
@@ -190,7 +197,7 @@ class Builder:
                 pass  # we just continue with the next package
         return []
 
-    def get_transaction_form_materials(self) -> typing.List:
+    def get_transaction_form_materials(self) -> typing.List[TransactionFormMaterial]:
         for package in reversed(self.packages):
             try:
                 return package.get_transaction_form_materials()
@@ -284,17 +291,17 @@ class Builder:
             # copy the backgrounds
             # backgrounds aren't required so we catch KeyError"
             try:
-                backgrounds = package.get_transaction_form_page_backgrounds()
+                backgrounds = package.get_transaction_form_page_background()
                 try:
-                    dest_path = self.get_destination_path(backgrounds["destination"])
+                    dest_path = self.get_destination_path(backgrounds.destination)
                 except KeyError:
                     raise ValueError(
                         f"destination missing.\n"
                         f"transactionformpagebackgrounds section in package {package.name} must have a destination."
                     )
 
-                for background_file in backgrounds["file"]:
-                    _file = background_file["path"]
+                for background_file in backgrounds.files:
+                    _file = background_file.path
                     source = package.basepath.joinpath(_file).resolve()
                     # if the source file is in a subdirectory pop of
                     # the first subdirectory.

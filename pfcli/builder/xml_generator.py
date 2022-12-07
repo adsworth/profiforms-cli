@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -15,16 +16,16 @@ class RsPackage:
     @property
     def runtime_environments(self):
         runtime_envs = self.builder.get_runtime_environments()
-        _string = "".join(
+        _string = "\n" + "\n".join(
             [
-                f"""<runtimeEnvironment platform="{e.platform}">
-                    <program name="{e.name}" version="{e.program_version}" />
-                    <cmdLine>{e.command_line}</cmdLine>
-                    <programResult>
-                        <log>{e.program_result_log}</log>
-                        <preview>{e.program_result_preview}</preview>
-                        <result type="{e.program_result_type}">{e.program_result_value}</result>
-                    </programResult>
+                f"""\t\t<runtimeEnvironment platform="{e.platform}">
+                  <program name="{e.name}" version="{e.program_version}" />
+                  <cmdLine>{e.command_line}</cmdLine>
+                  <programResult>
+                    <log>{e.program_result_log}</log>
+                    <preview>{e.program_result_preview}</preview>
+                    <result type="{e.program_result_type}">{e.program_result_value}</result>
+                  </programResult>
                 </runtimeEnvironment>"""
                 for e in runtime_envs
             ]
@@ -34,10 +35,10 @@ class RsPackage:
     @property
     def transaction_form_page_backgrounds(self):
         background = self.builder.get_transaction_form_page_background()
-        _string = "".join(
+        _string = "\n" + "\n".join(
             [
-                f'<transactionFormPageBackground pageName="{f["page_name"]}">{self.home}/{f["path"]}</transactionFormPageBackground>\n'
-                for f in background["file"]
+                f'\t\t<transactionFormPageBackground pageName="{f.page_name}">{self.make_package_home_path(f.path)}</transactionFormPageBackground>'
+                for f in background.files
             ]
         )
         return _string
@@ -45,9 +46,9 @@ class RsPackage:
     @property
     def materials(self):
         materials = self.builder.get_transaction_form_materials()
-        _string = "".join(
+        _string = "\n" + "\n".join(
             [
-                f'<material name="{m["name"]}" description="{m["description"]}" width="{m["width"]}" height="{m["height"]}" thickness="{m["thickness"]}" weight="{m["weight"]}" />\n'
+                f'\t\t<material name="{m.name}" description="{m.description}" width="{m.width}" height="{m.height}" thickness="{m.thickness}" weight="{m.weight}" />'
                 for m in materials
             ]
         )
@@ -57,9 +58,9 @@ class RsPackage:
     def test_data(self):
         try:
             test_data = self.builder.get_test_data()
-            _string = "".join(
+            _string = "\n" + "\n".join(
                 [
-                    f"<testData><name>{f.name}</name><description>{f.description}</description><value>{self.home}/{f.path}</value></testData>\n"
+                    f"\t\t<testData><name>{f.name}</name><description>{f.description}</description><value>{self.make_package_home_path(f.path)}</value></testData>"
                     for f in test_data.files
                 ]
             )
@@ -70,13 +71,18 @@ class RsPackage:
     @property
     def input_variables(self):
         variables = self.builder.get_input_variables()
-        _string = "".join(
+        _string = "\n" + "\n".join(
             [
-                f'<inputVariable><name>{v["name"]}</name><description>{v["description"]}</description></inputVariable>\n'
+                f'\t\t<inputVariable><name>{v["name"]}</name><description>{v["description"]}</description></inputVariable>'
                 for v in variables
             ]
         )
         return _string
+
+    def make_package_home_path(self, path: Path) -> Path:
+        _abs = path.absolute()
+        _path = _abs.relative_to(Path.cwd())
+        return f"{self.home}/{_path}"
 
     def get_xml(self):
         package = self.builder.build_package
@@ -91,25 +97,15 @@ class RsPackage:
 <?pte APIVersion="0.0.02"?>
 <package type="transaction" name="{package.name}" description="{package.description}" version="3.1">
   <configurationSet>
-    <runtimeEnvironments>
-      {self.runtime_environments}
-    </runtimeEnvironments>
-    <transactionForm>{self.home}/{package.transaction_form}</transactionForm>
-    <transactionFormPageBackgrounds>
-      {self.transaction_form_page_backgrounds}
-    </transactionFormPageBackgrounds>
+    <runtimeEnvironments>{self.runtime_environments}</runtimeEnvironments>
+    <transactionForm>{self.make_package_home_path(package.transaction_form)}</transactionForm>
+    <transactionFormPageBackgrounds>{self.transaction_form_page_backgrounds}</transactionFormPageBackgrounds>
     <fontDef>
-      <location>{self.home}/{font_def_loc}</location>
+        <location>{self.make_package_home_path(font_def_loc)}</location>
     </fontDef>
-    <transactionFormMaterials>
-      {self.materials}
-    </transactionFormMaterials>
-    <testDataSet>
-      {self.test_data}
-    </testDataSet>
-    <inputVariableSet>
-      {self.input_variables}
-    </inputVariableSet>
+    <transactionFormMaterials>{self.materials}</transactionFormMaterials>
+    <testDataSet>{self.test_data}</testDataSet>
+    <inputVariableSet>{self.input_variables}</inputVariableSet>
   </configurationSet>
   <supplement>
     <logicalSupplement>
